@@ -1,5 +1,12 @@
 import streamlit as st
+from transformers import pipeline
+from fastapi import FastAPI
+from pydantic import BaseModel
 
+class Item(BaseModel):
+    text: str
+    
+app = FastAPI()
 
 def neuro(image):
     from PIL import Image
@@ -30,8 +37,8 @@ def neuro(image):
 st.title("Лабораторная работа 4 (ПрИнж)")
 st.subheader("Выполнили:")
 st.markdown('1. Хорешко Дмитрий Игоревич;')
-st.markdown('2. Вадим;')
-st.markdown('3. Стас.')
+st.markdown('2. Вадим Бородин;')
+st.markdown('3. Станислав Дергунов.')
 
 Image = st.file_uploader("Загрузите изображение для нейросети.",
                          type=["jpg", "png", "jpeg"])
@@ -41,3 +48,12 @@ if Image is not None:
         res = neuro(Image)
         if res[1] == "True":
             st.success(res[0])
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+@app.post("/predict/")
+def predict(item:Item):
+    res=neuro(item.text)
+    return res[0]
